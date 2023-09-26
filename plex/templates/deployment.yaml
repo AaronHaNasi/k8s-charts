@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "terraria.fullname" . }}
+  name: {{ include "plex.fullname" . }}
   labels:
-    {{- include "terraria.labels" . | nindent 4 }}
+    {{- include "plex.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "terraria.selectorLabels" . | nindent 6 }}
+      {{- include "plex.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,13 +18,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "terraria.selectorLabels" . | nindent 8 }}
+        {{- include "plex.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "terraria.serviceAccountName" . }}
+      serviceAccountName: {{ include "plex.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -38,14 +38,13 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
-            tcpSocket: 
-              port: 7777 
-            initialDelaySeconds: 10 
-            periodSeconds: 10 
-            timeoutSeconds: 3
+            httpGet:
+              path: /
+              port: http
           readinessProbe:
-            tcpSocket:
-              port: 7777 
+            httpGet:
+              path: /
+              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
